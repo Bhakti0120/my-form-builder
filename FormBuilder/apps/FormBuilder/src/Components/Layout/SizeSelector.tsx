@@ -22,4 +22,4 @@ export default function SizeSelector({
       <MenuItem value="xl">100%</MenuItem>
     </TextField>
   );
-}
+} 

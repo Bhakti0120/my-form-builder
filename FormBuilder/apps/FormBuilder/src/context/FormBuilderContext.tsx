@@ -26,7 +26,7 @@ export const FormBuilderProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <FormBuilderContext.Provider value={{ formConfig, updateForm }}>
-      {children}
+      {children}  
     </FormBuilderContext.Provider>
   );
 };

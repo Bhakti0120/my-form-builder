@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import SectionEditor from "./SectionEditor";
 import { useFormBuilder } from "../../context/FormBuilderContext";
 
@@ -18,20 +18,56 @@ export default function FormBuilder() {
       ],
     });
   };
+  
+ const handleFormLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   updateForm({ formLabel: e.target.value });
+ };
 
+ const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
+ };
   return (
     <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Dynamic Form Builder
-      </Typography>
+      {/* Form-level settings */}
+      <Box mb={3}>
+        <Typography variant="h4" gutterBottom>
+          Dynamic Form Builder
+        </Typography>
 
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+          <TextField
+            label="Form Title"
+            value={formConfig.formLabel}
+            onChange={handleFormLabelChange}
+            fullWidth
+            size="small"
+          />
+
+          <TextField
+            label="View Type"
+            select
+            value={formConfig.viewType}
+            onChange={handleViewTypeChange}
+            size="small"
+            sx={{ minWidth: 160 }}
+          >
+            <MenuItem value="create">Create</MenuItem>
+            <MenuItem value="edit">Edit</MenuItem>
+            <MenuItem value="view">View</MenuItem>
+          </TextField>
+        </Stack>
+      </Box>
+
+      {/* Sections */}
       {formConfig.sections.map((sec) => (
         <SectionEditor key={sec.id} section={sec} />
       ))}
 
-      <Button variant="contained" onClick={addSection}>
-        Add Section
-      </Button>
+      <Box mt={2}>
+        <Button variant="contained" onClick={addSection}>
+          Add Section
+        </Button>
+      </Box>
     </Box>
   );
 }

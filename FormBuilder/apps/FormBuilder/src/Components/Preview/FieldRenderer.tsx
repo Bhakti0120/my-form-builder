@@ -6,90 +6,75 @@ import {
   FormControl,
   InputLabel,
   Select,
-  SelectChangeEvent,
   Box,
 } from '@mui/material';
 import { FieldConfig } from '../../types/form-types';
+import { UseFormRegister } from 'react-hook-form';
 
 interface Props {
   field: FieldConfig;
   viewType: 'create' | 'edit' | 'view';
-  // optional handlers for RHF or parent-controlled state later
-  value?: any;
-  onChange?: (val: any) => void;
+  register: UseFormRegister<any>;
+  error?: string;
 }
 
-/**
- * FieldRenderer
- *
- * - Maps your FieldConfig.type to a basic MUI input.
- * - Inputs are disabled when viewType === "view".
- * - For now this is controlled via local onChange if provided; later integrate RHF here.
- *
- * TODO (Phase 3): replace local onChange/value with react-hook-form register + zod resolver.
- */
 export default function FieldRenderer({
   field,
   viewType,
-  value,
-  onChange,
+  register,
+  error,
 }: Props) {
   const disabled = viewType === 'view';
 
-  const commonProps = {
-    label: field.label || 'Field',
-    required: field.required,
-    fullWidth: true,
-    size: 'small' as const,
-    disabled,
-    value: value ?? '',
-    onChange: (_e: any) => {
-      if (onChange) onChange(_e.target?.value ?? _e);
-    },
+  /** Binding RHF register */
+  const registerProps = {
+    ...register(field.id),
   };
 
-  switch (field.type) {
-    case 'text':
-      return <TextField {...commonProps} placeholder={field.label} />;
-    case 'email':
-      return (
-        <TextField {...commonProps} type="email" placeholder={field.label} />
-      );
-    case 'number':
-      return (
-        <TextField {...commonProps} type="number" placeholder={field.label} />
-      );
-    case 'date':
-      // browser native date input for simplicity; later swap to MUI DatePicker
-      return (
-        <TextField
-          {...commonProps}
-          type="date"
-          InputLabelProps={{ shrink: true }}
-        />
-      );
-    case 'select':
-      // default example options — you should extend FieldConfig with options for real selects
-      return (
-        <FormControl fullWidth size="small" disabled={disabled}>
-          <InputLabel id={`label-${field.id}`}>{field.label}</InputLabel>
-          <Select
-            labelId={`label-${field.id}`}
-            label={field.label}
-            value={value ?? ''}
-            onChange={(e: SelectChangeEvent<any>) => {
-              if (onChange) onChange(e.target.value);
-            }}
-          >
-            <MenuItem value="">Select an option</MenuItem>
-            <MenuItem value="option_1">Option 1</MenuItem>
-            <MenuItem value="option_2">Option 2</MenuItem>
-            <MenuItem value="option_3">Option 3</MenuItem>
-          </Select>
-        </FormControl>
-      );
-    default:
-      // fallback to text
-      return <TextField {...commonProps} placeholder={field.label} />;
+  // Handle SELECT separately
+  if (field.type === 'select') {
+    return (
+      <FormControl fullWidth size="small" disabled={disabled} error={!!error}>
+        <InputLabel id={`label-${field.id}`}>{field.label}</InputLabel>
+
+        <Select
+          labelId={`label-${field.id}`}
+          label={field.label}
+          defaultValue=""
+          {...registerProps}
+        >
+          <MenuItem value="">Select an option</MenuItem>
+          <MenuItem value="option_1">Option 1</MenuItem>
+          <MenuItem value="option_2">Option 2</MenuItem>
+          <MenuItem value="option_3">Option 3</MenuItem>
+        </Select>
+
+        {error && (
+          <Box sx={{ color: 'error.main', fontSize: 12, mt: 0.5 }}>{error}</Box>
+        )}
+      </FormControl>
+    );
   }
+
+  // Default TextField types
+  return (
+    <TextField
+      {...registerProps}
+      label={field.label}
+      fullWidth
+      size="small"
+      disabled={disabled}
+      error={!!error}
+      helperText={error}
+      type={
+        field.type === 'number'
+          ? 'number'
+          : field.type === 'email'
+          ? 'email'
+          : field.type === 'date'
+          ? 'date'
+          : undefined
+      }
+    />
+  );
 }

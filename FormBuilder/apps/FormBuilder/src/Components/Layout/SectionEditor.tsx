@@ -9,6 +9,7 @@ import {
   Button,
   Stack,
   Divider,
+  TextField,
 } from '@mui/material';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -20,57 +21,89 @@ import { FormSection } from '../../types/form-types';
 
 interface Props {
   section: FormSection;
+  
 }
 
 export default function SectionEditor({ section }: Props) {
   const { formConfig, updateForm } = useFormBuilder();
 
+  const updateSections = (
+    updater: (sections: FormSection[]) => FormSection[]
+  ) => {
+    updateForm({ sections: updater(formConfig.sections) });
+  };
+
   const deleteSection = (e: React.MouseEvent) => {
     e.stopPropagation();
-    updateForm({
-      sections: formConfig.sections.filter((s) => s.id !== section.id),
-    });
+    updateSections((sections) => sections.filter((s) => s.id !== section.id));
   };
 
   const addRow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newSections = formConfig.sections.map((s) =>
-      s.id === section.id ? { ...s, rows: [...s.rows, []] } : s
+    updateSections((sections) =>
+      sections.map((s) =>
+        s.id === section.id ? { ...s, rows: [...s.rows, []] } : s
+      )
     );
-    updateForm({ sections: newSections });
+  };
+
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newLabel = e.target.value;
+    updateSections((sections) =>
+      sections.map((s) => (s.id === section.id ? { ...s, label: newLabel } : s))
+    );
+  };
+
+  const handleAccordionToggle = (
+    _e: React.SyntheticEvent,
+    isExpanded: boolean
+  ) => {
+    updateSections((sections) =>
+      sections.map((s) =>
+        s.id === section.id ? { ...s, expanded: isExpanded } : s
+      )
+    );
   };
 
   return (
-    <Accordion defaultExpanded>
+    <Accordion
+      expanded={section.expanded}
+      onChange={handleAccordionToggle}
+      sx={{ mb: 2, position: 'relative' }}
+    >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <Typography sx={{ fontWeight: 'bold', mr: 2 }}>
-          {section.label}
-        </Typography>
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', gap: 2, flexGrow: 1 }}
+        >
+          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+            Section
+          </Typography>
+          <TextField
+            variant="standard"
+            value={section.label}
+            onChange={handleLabelChange}
+            onClick={(e) => e.stopPropagation()}
+            onFocus={(e) => e.stopPropagation()}
+            placeholder="Section label"
+            sx={{ maxWidth: 300 }}
+          />
+        </Box>
 
-        <Box sx={{ flexGrow: 1 }} />
-
-        {/* <IconButton
+        <IconButton
           size="small"
           onClick={deleteSection}
           aria-label="delete section"
           sx={{ ml: 1 }}
         >
-          <DeleteIcon />
-        </IconButton> */}
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       </AccordionSummary>
-      <IconButton
-        size="small"
-        onClick={deleteSection}
-        aria-label="delete section"
-        sx={{ position: 'absolute', top: 8, right: 8 }}
-      >
-        <DeleteIcon />
-      </IconButton>
+
       <AccordionDetails>
         <Stack spacing={2}>
           {section.rows.map((row, idx) => (
             <Box key={idx}>
-              <FieldEditor row={row} sectionId={section.id} />
+              <FieldEditor row={row} sectionId={section.id} rowIndex={ idx} />
               {idx < section.rows.length - 1 && <Divider sx={{ my: 1 }} />}
             </Box>
           ))}
