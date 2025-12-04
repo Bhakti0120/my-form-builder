@@ -1,114 +1,103 @@
 // apps/FormBuilder/src/components/preview/FormPreview.tsx
 import React from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Grid,
-  Divider,
-} from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { useFormBuilder } from '../../context/FormBuilderContext';
+import { Box, Typography, Button, Divider } from '@mui/material';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import FieldRenderer from './FieldRenderer';
-import { FieldConfig, FieldSize } from '../../types/form-types';
+import { useFormBuilder } from '../../context/FormBuilderContext';
+import { buildZodSchema } from '../../utils/schema-builder';
+import { sizeToPercent } from '../../utils/layout-utils';
 
-/**
- * Utility: convert FieldSize -> flex-basis percentage string
- * Matches the same rules used in your FieldEditor (33.33, 50, 66.66, 100)
- */
-const sizeToFlexPercent = (size: FieldSize) => {
-  switch (size) {
-    case 'xl':
-      return '100%';
-    case 'lg':
-      return '66.66%';
-    case 'md':
-      return '50%';
-    case 'sm':
-    default:
-      return '33.33%';
-  }
-};
-
-/**
- * FormPreview
- *
- * - Reads formConfig from context
- * - Renders sections (Accordion) -> rows -> fields
- * - Each row is a flex container; each field uses flex-basis from sizeToFlexPercent
- *
- * Note: This preview is intentionally simple and does NOT yet wire react-hook-form.
- * When you move to Phase 3 we'll wrap this in RHF and auto-generate Zod schemas.
- */
 export default function FormPreview() {
   const { formConfig } = useFormBuilder();
 
-  if (!formConfig.sections || formConfig.sections.length === 0) {
+  const schema = buildZodSchema(formConfig);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+  });
+
+  const onSubmit = (data: any) => {
+    console.log('FORM DATA:', data);
+    alert(JSON.stringify(data, null, 2));
+  };
+
+  if (!formConfig?.sections?.length) {
     return (
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6">Preview</Typography>
-        <Typography variant="body2" sx={{ mt: 1 }}>
-          No sections yet — go to Builder mode and add sections/fields.
-        </Typography>
-      </Paper>
+      <Typography color="text.secondary">
+        No form layout configured yet.
+      </Typography>
     );
   }
 
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom>
-        {formConfig.formLabel || 'Untitled Form'}
+    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate p={2}>
+      <Typography variant="h5" fontWeight={600} mb={2}>
+        {formConfig.formLabel || 'Form Preview'}
       </Typography>
 
-      {formConfig.sections.map((section) => (
-        <Accordion key={section.id} defaultExpanded={section.expanded}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography sx={{ fontWeight: 'bold' }}>
-              {section.label || 'Section'}
-            </Typography>
-          </AccordionSummary>
+      {formConfig.sections.map((sec) => (
+        <Box key={sec.id} mb={3}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1}>
+            {sec.label}
+          </Typography>
 
-          <AccordionDetails>
-            <Box display="flex" flexDirection="column" gap={2}>
-              {section.rows.map((row, rowIndex) => (
-                <Box
-                  key={rowIndex}
-                  display="flex"
-                  flexWrap="wrap"
-                  gap={16}
-                  alignItems="flex-start"
-                >
-                  {row.length === 0 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      (Empty row)
-                    </Typography>
-                  ) : (
-                    row.map((field: FieldConfig) => (
-                      <Box
-                        key={field.id}
-                        sx={{
-                          flex: `0 0 ${sizeToFlexPercent(field.size)}`,
-                          minWidth: 180,
-                        }}
-                      >
-                        <FieldRenderer
-                          field={field}
-                          viewType={formConfig.viewType}
-                        />
-                      </Box>
-                    ))
-                  )}
-                </Box>
-              ))}
+          {sec.rows.map((row, rowIdx) => (
+            <Box
+              key={rowIdx}
+              sx={{
+                mb: 2,
+                p: 2,
+                border: '1px solid #ddd',
+                borderRadius: 1,
+                background: '#fafafa',
+              }}
+            >
+              <Typography
+                variant="caption"
+                fontWeight={600}
+                display="block"
+                mb={1}
+              >
+                Row {rowIdx + 1}
+              </Typography>
 
-              <Divider />
+              <Box display="flex" flexWrap="wrap" mx={-1}>
+                {row.map((field) => (
+                  <Box
+                    key={field.id}
+                    sx={{
+                      flex: `0 0 ${sizeToPercent(field.size)}%`,
+                      px: 1,
+                      minWidth: 220,
+                      boxSizing: 'border-box',
+                      mb: 2,
+                    }}
+                  >
+                    <FieldRenderer
+                      field={field}
+                      viewType={formConfig.viewType}
+                      register={register}
+                      error={errors[field.id]?.message as string | undefined}
+                    />
+                  </Box>
+                ))}
+              </Box>
             </Box>
-          </AccordionDetails>
-        </Accordion>
+          ))}
+
+          <Divider sx={{ my: 2 }} />
+        </Box>
       ))}
+
+      <Button type="submit" variant="contained">
+        Submit
+      </Button>
     </Box>
   );
 }
