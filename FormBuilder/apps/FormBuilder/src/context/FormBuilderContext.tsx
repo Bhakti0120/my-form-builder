@@ -6,7 +6,7 @@ interface FormBuilderCtx {
   updateForm: (data: Partial<FormConfig>) => void;
 }
 
-const defaultConfig: FormConfig = {
+export const defaultConfig: FormConfig = {
   formLabel: "",
   viewType: "create",
   sections: [],

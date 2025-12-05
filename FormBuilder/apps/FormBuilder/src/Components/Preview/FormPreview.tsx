@@ -8,7 +8,10 @@ import { useFormBuilder } from '../../context/FormBuilderContext';
 import { buildZodSchema } from '../../utils/schema-builder';
 import { sizeToPercent } from '../../utils/layout-utils';
 
-export default function FormPreview() {
+interface previewProps {
+  showSave?: boolean;
+}
+export default function FormPreview({ showSave=true}: previewProps) {
   const { formConfig } = useFormBuilder();
 
   const schema = buildZodSchema(formConfig);
@@ -94,10 +97,32 @@ export default function FormPreview() {
           <Divider sx={{ my: 2 }} />
         </Box>
       ))}
+      {showSave && (
+        <Button
+        variant="contained"
+        sx={{ mr: 2 }}
+        onClick={() => {
+          const forms = JSON.parse(
+            localStorage.getItem('published-forms') || '{}'
+          );
+          const name = formConfig.formLabel.trim();
 
-      <Button type="submit" variant="contained">
-        Submit
+          if (!name) {
+            return alert('Form Title is missing. Cannot save form.');
+          }
+
+          forms[name] = formConfig;
+          localStorage.setItem('published-forms', JSON.stringify(forms));
+
+          alert(`Form "${name}" saved successfully!`);
+        }}
+      >
+        Save Form
       </Button>
+      )}
+      
+
+      
     </Box>
   );
 }

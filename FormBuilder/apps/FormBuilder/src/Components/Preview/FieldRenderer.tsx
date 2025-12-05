@@ -32,29 +32,36 @@ export default function FieldRenderer({
   };
 
   // Handle SELECT separately
-  if (field.type === 'select') {
-    return (
-      <FormControl fullWidth size="small" disabled={disabled} error={!!error}>
-        <InputLabel id={`label-${field.id}`}>{field.label}</InputLabel>
+if (field.type === 'select') {
+  return (
+    <FormControl fullWidth size="small" disabled={disabled} error={!!error}>
+      <InputLabel id={`label-${field.id}`}>{field.label}</InputLabel>
 
-        <Select
-          labelId={`label-${field.id}`}
-          label={field.label}
-          defaultValue=""
-          {...registerProps}
-        >
-          <MenuItem value="">Select an option</MenuItem>
-          <MenuItem value="option_1">Option 1</MenuItem>
-          <MenuItem value="option_2">Option 2</MenuItem>
-          <MenuItem value="option_3">Option 3</MenuItem>
-        </Select>
+      <Select
+        labelId={`label-${field.id}`}
+        label={field.label}
+        defaultValue=""
+        {...registerProps}
+      >
+        <MenuItem value="">Select an option</MenuItem>
 
-        {error && (
-          <Box sx={{ color: 'error.main', fontSize: 12, mt: 0.5 }}>{error}</Box>
+        {field.options?.length ? (
+          field.options.map((opt, idx) => (
+            <MenuItem key={idx} value={opt}>
+              {opt}
+            </MenuItem>
+          ))
+        ) : (
+          <MenuItem disabled>No options available</MenuItem>
         )}
-      </FormControl>
-    );
-  }
+      </Select>
+
+      {error && (
+        <Box sx={{ color: 'error.main', fontSize: 12, mt: 0.5 }}>{error}</Box>
+      )}
+    </FormControl>
+  );
+}
 
   // Default TextField types
   return (
@@ -73,6 +80,13 @@ export default function FieldRenderer({
           ? 'email'
           : field.type === 'date'
           ? 'date'
+          : undefined
+      }
+      slotProps={
+        field.type === 'date'
+          ? {
+              inputLabel: { shrink: true }, 
+            }
           : undefined
       }
     />

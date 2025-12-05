@@ -10,6 +10,10 @@ import {
   Typography,
   Stack,
   Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Collapse,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -28,6 +32,8 @@ interface Props {
 }
 
 export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
+const [open, setOpen] = useState<boolean>(false);
+
   const { formConfig, updateForm } = useFormBuilder();
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +66,7 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
   };
 
   const handleTypeChange = (fieldId: string, value: string) => {
-    updateField(fieldId, (f) => ({ ...f, type: value }));
+    updateField(fieldId, (f) => ({ ...f, type: value, options: value === 'select' ? f.options ?? []: undefined })); ;
   };
 
   const handleRequiredChange = (fieldId: string, value: 'yes' | 'no') => {
@@ -77,7 +83,7 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
     if (!rowArr) return;
 
     const fieldIndex = rowArr.findIndex((f) => f.id === fieldId);
-    if (fieldIndex === -1) return;
+    if (fieldIndex === -1) return;  
 
     const originalSize = rowArr[fieldIndex].size;
     rowArr[fieldIndex].size = newSize;
@@ -114,6 +120,36 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
     setError(null);
   };
 
+
+  const addOption = (fieldId: string) => {
+    updateField(fieldId, (f) => ({
+      ...f,
+      options: [...(f.options ?? []), ''],
+    }));
+  };
+
+  const handleOptionChange = (
+    fieldId: string,
+    optionIndex: number,
+    value: string
+  ) => {
+    updateField(fieldId, (f) => {
+      const newOptions = [...(f.options ?? [])];
+      newOptions[optionIndex] = value;
+      return { ...f, options: newOptions };
+    });
+  };
+
+  const deleteOption = (fieldId: string, optionIndex: number) => {
+    updateField(fieldId, (f) => {
+      const newOptions = [...(f.options ?? [])];
+      newOptions.splice(optionIndex, 1);
+      return { ...f, options: newOptions };
+    });
+  };
+
+
+
   const deleteField = (id: string) => {
     const sectionsCopy = cloneSections();
     const sectionIndex = sectionsCopy.findIndex((s) => s.id === sectionId);
@@ -136,6 +172,7 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
     setError(null);
   };
 
+
   const addField = () => {
     const sectionsCopy = cloneSections();
     const sectionIndex = sectionsCopy.findIndex((s) => s.id === sectionId);
@@ -150,6 +187,7 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
       type: 'text',
       size: 'sm',
       required: false,
+      options: [],
     };
 
     const currentWidth = getRowWidth(currentRow);
@@ -248,6 +286,84 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
                       <MenuItem value="no">No</MenuItem>
                     </TextField>
                   </Box>
+
+                  {field.type === 'select' && (
+                    <Box>
+                      {/* Header */}
+                      <Box
+                        onClick={() => setOpen(!open)}
+                        sx={{
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+
+                          // 🔥 Absolute minimum height
+                          height: '16px',
+
+                          // 🔥 Zero padding and margins
+                          p: 0,
+                          m: 0,
+
+                          // 🔥 Typography-like styling without Typography component
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          opacity: 0.7,
+                          lineHeight: 1, // IMPORTANT
+                        }}
+                      >
+                        Options ({field.options?.length || 0})
+                      </Box>
+
+                      {/* Content */}
+                      <Collapse
+                        in={open}
+                        unmountOnExit // removes extra space when collapsed
+                        sx={{
+                          mt: 1,
+                          p: 0,
+                        }}
+                      >
+                        {field.options?.map((opt, idx) => (
+                          <Box key={idx} display="flex" gap={1} mb={1}>
+                            <TextField
+                              size="small"
+                              fullWidth
+                              value={opt}
+                              onChange={(e) =>
+                                handleOptionChange(
+                                  field.id,
+                                  idx,
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <Button
+                              size="small"
+                              color="error"
+                              sx={{ minWidth: 28, p: '0 4px', lineHeight: 1 }}
+                              onClick={() => deleteOption(field.id, idx)}
+                            >
+                              x
+                            </Button>
+                          </Box>
+                        ))}
+
+                        <Button
+                          size="small"
+                          sx={{
+                            fontSize: 11,
+                            textTransform: 'none',
+                            p: 0,
+                            mt: 0.5,
+                            lineHeight: 1,
+                          }}
+                          onClick={() => addOption(field.id)}
+                        >
+                          + Add option
+                        </Button>
+                      </Collapse>
+                    </Box>
+                  )}
                 </Stack>
               </CardContent>
 
