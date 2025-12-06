@@ -1,6 +1,14 @@
-import { Box, Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
-import SectionEditor from "./SectionEditor";
-import { useFormBuilder } from "../../context/FormBuilderContext";
+import {
+  Box,
+  Button,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
+import SectionEditor from './SectionEditor';
+import { useFormBuilder } from '../../context/FormBuilderContext';
+import { defaultConfig } from '../../context/FormBuilderContext';
 
 export default function FormBuilder() {
   const { formConfig, updateForm } = useFormBuilder();
@@ -18,14 +26,16 @@ export default function FormBuilder() {
       ],
     });
   };
-  
- const handleFormLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   updateForm({ formLabel: e.target.value });
- };
+  const resetForm = () => {
+    updateForm(defaultConfig);
+  };
+  const handleFormLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateForm({ formLabel: e.target.value });
+  };
 
- const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-   updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
- };
+  // const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
+  // };
   return (
     <Box p={3}>
       {/* Form-level settings */}
@@ -43,7 +53,7 @@ export default function FormBuilder() {
             size="small"
           />
 
-          <TextField
+          {/* <TextField
             label="View Type"
             select
             value={formConfig.viewType}
@@ -54,7 +64,7 @@ export default function FormBuilder() {
             <MenuItem value="create">Create</MenuItem>
             <MenuItem value="edit">Edit</MenuItem>
             <MenuItem value="view">View</MenuItem>
-          </TextField>
+          </TextField> */}
         </Stack>
       </Box>
 
@@ -63,9 +73,13 @@ export default function FormBuilder() {
         <SectionEditor key={sec.id} section={sec} />
       ))}
 
-      <Box mt={2}>
+      <Box mt={2} display="flex" gap={2}>
         <Button variant="contained" onClick={addSection}>
           Add Section
+        </Button>
+        
+        <Button variant="contained" color="error" onClick={resetForm}>
+          Reset
         </Button>
       </Box>
     </Box>

@@ -8,7 +8,10 @@ import { useFormBuilder } from '../../context/FormBuilderContext';
 import { buildZodSchema } from '../../utils/schema-builder';
 import { sizeToPercent } from '../../utils/layout-utils';
 
-export default function FormPreview() {
+interface previewProps {
+  showSave?: boolean;
+}
+export default function FormPreview({ showSave=true}: previewProps) {
   const { formConfig } = useFormBuilder();
 
   const schema = buildZodSchema(formConfig);
@@ -81,7 +84,7 @@ export default function FormPreview() {
                   >
                     <FieldRenderer
                       field={field}
-                      viewType={formConfig.viewType}
+                      // viewType={formConfig.viewType}
                       register={register}
                       error={errors[field.id]?.message as string | undefined}
                     />
@@ -94,10 +97,34 @@ export default function FormPreview() {
           <Divider sx={{ my: 2 }} />
         </Box>
       ))}
+      {showSave && (
+        <Button
+          variant="contained"
+          sx={{ mr: 2 }}
+          onClick={() => {
+            const stored = JSON.parse(
+              localStorage.getItem('published-forms') || '{}'
+            );
 
-      <Button type="submit" variant="contained">
-        Submit
-      </Button>
+            const formId = formConfig.id || crypto.randomUUID(); // NEW: assign ID if missing
+
+            const template = {
+              id: formId,
+              title: formConfig.formLabel.trim() || 'Untitled Form',
+              config: formConfig,
+              createdAt: stored[formId]?.createdAt || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+
+            stored[formId] = template;
+
+            localStorage.setItem('published-forms', JSON.stringify(stored));
+            alert(`Form "${template.title}" saved successfully!`);
+          }}
+        >
+          Save Form
+        </Button>
+      )}
     </Box>
   );
 }
