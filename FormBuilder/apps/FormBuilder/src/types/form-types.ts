@@ -17,7 +17,7 @@ export interface FormSection {
 }
 
 export interface FormConfig {
+  id?: string;
   formLabel: string;
-  viewType: "create" | "edit" | "view";
   sections: FormSection[];
 }

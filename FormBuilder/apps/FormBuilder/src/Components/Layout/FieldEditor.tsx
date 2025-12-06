@@ -296,19 +296,13 @@ const [open, setOpen] = useState<boolean>(false);
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
-
-                          // 🔥 Absolute minimum height
                           height: '16px',
-
-                          // 🔥 Zero padding and margins
                           p: 0,
                           m: 0,
-
-                          // 🔥 Typography-like styling without Typography component
                           fontSize: '11px',
                           fontWeight: 600,
                           opacity: 0.7,
-                          lineHeight: 1, // IMPORTANT
+                          lineHeight: 1, 
                         }}
                       >
                         Options ({field.options?.length || 0})
@@ -317,7 +311,7 @@ const [open, setOpen] = useState<boolean>(false);
                       {/* Content */}
                       <Collapse
                         in={open}
-                        unmountOnExit // removes extra space when collapsed
+                        unmountOnExit 
                         sx={{
                           mt: 1,
                           p: 0,

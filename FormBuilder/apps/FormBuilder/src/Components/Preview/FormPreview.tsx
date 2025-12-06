@@ -84,7 +84,7 @@ export default function FormPreview({ showSave=true}: previewProps) {
                   >
                     <FieldRenderer
                       field={field}
-                      viewType={formConfig.viewType}
+                      // viewType={formConfig.viewType}
                       register={register}
                       error={errors[field.id]?.message as string | undefined}
                     />
@@ -99,30 +99,32 @@ export default function FormPreview({ showSave=true}: previewProps) {
       ))}
       {showSave && (
         <Button
-        variant="contained"
-        sx={{ mr: 2 }}
-        onClick={() => {
-          const forms = JSON.parse(
-            localStorage.getItem('published-forms') || '{}'
-          );
-          const name = formConfig.formLabel.trim();
+          variant="contained"
+          sx={{ mr: 2 }}
+          onClick={() => {
+            const stored = JSON.parse(
+              localStorage.getItem('published-forms') || '{}'
+            );
 
-          if (!name) {
-            return alert('Form Title is missing. Cannot save form.');
-          }
+            const formId = formConfig.id || crypto.randomUUID(); // NEW: assign ID if missing
 
-          forms[name] = formConfig;
-          localStorage.setItem('published-forms', JSON.stringify(forms));
+            const template = {
+              id: formId,
+              title: formConfig.formLabel.trim() || 'Untitled Form',
+              config: formConfig,
+              createdAt: stored[formId]?.createdAt || new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
 
-          alert(`Form "${name}" saved successfully!`);
-        }}
-      >
-        Save Form
-      </Button>
+            stored[formId] = template;
+
+            localStorage.setItem('published-forms', JSON.stringify(stored));
+            alert(`Form "${template.title}" saved successfully!`);
+          }}
+        >
+          Save Form
+        </Button>
       )}
-      
-
-      
     </Box>
   );
 }

@@ -33,9 +33,9 @@ export default function FormBuilder() {
     updateForm({ formLabel: e.target.value });
   };
 
-  const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
-  };
+  // const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
+  // };
   return (
     <Box p={3}>
       {/* Form-level settings */}
@@ -53,7 +53,7 @@ export default function FormBuilder() {
             size="small"
           />
 
-          <TextField
+          {/* <TextField
             label="View Type"
             select
             value={formConfig.viewType}
@@ -64,7 +64,7 @@ export default function FormBuilder() {
             <MenuItem value="create">Create</MenuItem>
             <MenuItem value="edit">Edit</MenuItem>
             <MenuItem value="view">View</MenuItem>
-          </TextField>
+          </TextField> */}
         </Stack>
       </Box>
 

@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Box, AppBar, Toolbar, Typography, Switch, Stack, Button } from '@mui/material';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  Switch,
+  Stack,
+  Button,
+} from '@mui/material';
 import FormBuilder from '../Components/Layout/FormBuilder';
 import FormPreview from '../Components/Preview/FormPreview';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,16 +17,17 @@ export default function App() {
   const [mode, setMode] = useState<'builder' | 'preview'>('builder');
   const [params] = useSearchParams();
   const { formConfig, updateForm } = useFormBuilder();
-  const editName = params.get('edit');
-  const navigate=useNavigate();
+  const editId = params.get('edit');
+  const navigate = useNavigate();
   useEffect(() => {
-    if (editName) {
-      const saved = JSON.parse(localStorage.getItem('published-forms') || '{}');
-      if (saved[editName]) {
-        updateForm(saved[editName]);
-      }
+    if (editId) {
+      const stored = JSON.parse(
+        localStorage.getItem('published-forms') || '{}'
+      );
+      if (stored[editId]) updateForm(stored[editId].config);
+
     }
-  }, [editName]);
+  }, [editId]);
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static">

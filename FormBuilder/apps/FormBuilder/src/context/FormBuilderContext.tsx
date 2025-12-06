@@ -7,8 +7,9 @@ interface FormBuilderCtx {
 }
 
 export const defaultConfig: FormConfig = {
-  formLabel: "",
-  viewType: "create",
+  id: undefined,
+  formLabel: '',
+  // viewType: 'create',
   sections: [],
 };
 

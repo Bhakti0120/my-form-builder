@@ -13,7 +13,7 @@ import { UseFormRegister } from 'react-hook-form';
 
 interface Props {
   field: FieldConfig;
-  viewType: 'create' | 'edit' | 'view';
+  viewType?: 'create' | 'edit' | 'view';
   register: UseFormRegister<any>;
   error?: string;
 }

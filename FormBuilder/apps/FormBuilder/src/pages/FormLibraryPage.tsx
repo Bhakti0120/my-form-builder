@@ -12,52 +12,73 @@ import { defaultConfig, useFormBuilder } from '../context/FormBuilderContext';
 export default function FormLibraryPage() {
   const navigate = useNavigate();
   const stored = JSON.parse(localStorage.getItem('published-forms') || '{}');
-  const names = Object.keys(stored);
+  const ids = Object.keys(stored);
   const { updateForm } = useFormBuilder();
 
   return (
     <Box p={3}>
-      <Button variant="outlined" onClick={() => {
-                    updateForm(defaultConfig); 
-                    navigate('/'); 
-                  }}>
+      <Button
+        variant="outlined"
+        onClick={() => {
+          updateForm(defaultConfig);
+          navigate('/');
+        }}
+      >
         Back
       </Button>
       <Typography variant="h4" mb={2}>
         Published Forms
       </Typography>
 
-      {names.length === 0 ? (
+      {ids.length === 0 ? (
         <Typography>No forms published yet.</Typography>
       ) : (
         <List disablePadding>
-          {names.map((name) => (
-            <ListItem
-              key={name}
-              sx={{ borderBottom: '1px solid #ddd' }}
-              secondaryAction={
-                <Box display="flex" gap={1}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => navigate(`/form/${name}`)}
-                  >
-                    Open
-                  </Button>
+          {ids.map((id) => {
+            const tpl = stored[id];
 
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => navigate(`/?edit=${name}`)}
-                  >
-                    Edit
-                  </Button>
-                </Box>
-              }
-            >
-              <ListItemText primary={name} />
-            </ListItem>
-          ))}
+            return (
+              <ListItem
+                key={id}
+                sx={{ borderBottom: '1px solid #ddd' }}
+                secondaryAction={
+                  <Box display="flex" gap={1}>
+                    {/* Fill Form */}
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/fill?formId=${id}&mode=create`)}
+                    >
+                      Fill
+                    </Button>
+
+                    {/* Edit Layout */}
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/?edit=${id}`)}
+                    >
+                      Edit Layout
+                    </Button>
+
+                    {/* Responses */}
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => navigate(`/forms/${id}/responses`)}
+                    >
+                      Responses
+                    </Button>
+                  </Box>
+                }
+              >
+                <ListItemText
+                  primary={tpl.title}
+                  secondary={`Form ID: ${id}`}
+                />
+              </ListItem>
+            );
+          })}
         </List>
       )}
     </Box>
