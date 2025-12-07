@@ -1,4 +1,3 @@
-// src/pages/FormResponsesPage.tsx
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, Card, CardContent, Typography } from '@mui/material';
 import { loadResponses, loadTemplates, deleteResponse } from '../utils/storage';
