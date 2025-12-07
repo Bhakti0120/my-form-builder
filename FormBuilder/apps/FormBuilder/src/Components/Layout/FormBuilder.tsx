@@ -49,24 +49,17 @@ export default function FormBuilder() {
             label="Form Title"
             value={formConfig.formLabel}
             onChange={handleFormLabelChange}
-            fullWidth
+            sx={{ width: 400 }}
             size="small"
           />
-
-          {/* <TextField
-            label="View Type"
-            select
-            value={formConfig.viewType}
-            onChange={handleViewTypeChange}
-            size="small"
-            sx={{ minWidth: 160 }}
-          >
-            <MenuItem value="create">Create</MenuItem>
-            <MenuItem value="edit">Edit</MenuItem>
-            <MenuItem value="view">View</MenuItem>
-          </TextField> */}
         </Stack>
       </Box>
+
+      {formConfig.sections.length === 0 && (
+        <Typography sx={{ mt: 2, mb: 3 }} color="text.secondary">
+          Your form is empty. Click "Add Section" to get started.
+        </Typography>
+      )}
 
       {/* Sections */}
       {formConfig.sections.map((sec) => (
@@ -77,7 +70,7 @@ export default function FormBuilder() {
         <Button variant="contained" onClick={addSection}>
           Add Section
         </Button>
-        
+
         <Button variant="contained" color="error" onClick={resetForm}>
           Reset
         </Button>

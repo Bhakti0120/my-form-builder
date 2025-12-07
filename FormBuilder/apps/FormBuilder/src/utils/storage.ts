@@ -10,6 +10,7 @@ export type FormTemplate = {
 export type FormResponse = {
   responseId: string;
   data: Record<string, any>;
+  pretty?: Record<string,any>
   createdAt: string;
   updatedAt?: string;
 };
@@ -37,10 +38,31 @@ export const loadResponses = (): Record<string, FormResponse[]> =>
 export const saveResponses = (map: Record<string, FormResponse[]>) =>
   localStorage.setItem(RESPONSE_KEY, JSON.stringify(map));
 
-export const saveResponse = (formId: string, response: FormResponse) => {
+export const saveResponse = (
+  formId: string,
+  response: FormResponse,
+  config: any
+) => {
   const all = loadResponses();
   const arr = all[formId] ?? [];
 
+  // --- Build a human-readable snapshot (label → value)
+  const pretty: Record<string, any> = {};
+
+  config.sections.forEach((sec: any) =>
+    sec.rows.forEach((row: any) =>
+      row.forEach((field: any) => {
+        const value = response.data[field.id];
+        if (value !== undefined) {
+          pretty[field.label || field.id] = value;
+        }
+      })
+    )
+  );
+
+  response.pretty = pretty;
+
+  // --- Insert or update response
   const idx = arr.findIndex((r) => r.responseId === response.responseId);
 
   if (idx >= 0) {

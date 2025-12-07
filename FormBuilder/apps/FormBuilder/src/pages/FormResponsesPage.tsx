@@ -7,10 +7,10 @@ export default function FormResponsesPage() {
   const { id: formId } = useParams();
   const navigate = useNavigate();
 
-    if (!formId) {
-      return <Typography>Invalid form ID.</Typography>;
-    }
-    
+  if (!formId) {
+    return <Typography>Invalid form ID.</Typography>;
+  }
+
   const templates = loadTemplates();
   const template = templates[formId];
   const responses = loadResponses()[formId] || [];
@@ -71,6 +71,16 @@ export default function FormResponsesPage() {
               >
                 Delete
               </Button>
+
+              <Box mt={2}>
+                {(r.pretty ? Object.entries(r.pretty) : []).map(
+                  ([label, value]) => (
+                    <Typography key={label}>
+                      <strong>{label}:</strong> {String(value)}
+                    </Typography>
+                  )
+                )}
+              </Box>
             </Box>
           </CardContent>
         </Card>

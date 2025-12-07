@@ -36,7 +36,7 @@ export default function FormFillPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    saveResponse(formId, newResponse);
+    saveResponse(formId, newResponse, template.config);
 
     alert(mode === 'edit' ? 'Response updated!' : 'Form submitted!');
   };

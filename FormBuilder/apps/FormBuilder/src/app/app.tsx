@@ -41,17 +41,12 @@ export default function App() {
               '&:hover': { opacity: 0.8 },
             }}
             onClick={() => {
-              updateForm(defaultConfig); // reset to default
-              navigate('/'); // go home (or '/form-builder')
+              updateForm(defaultConfig); 
+              navigate('/'); 
             }}
           >
             FormCraft
           </Typography>
-
-          {/* Navigation
-          <Button color="inherit" sx={{ mr: 1 }} onClick={() => navigate('/')}>
-            Builder
-          </Button> */}
 
           <Button
             color="inherit"
