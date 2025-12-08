@@ -15,7 +15,7 @@ FormBuilder/
 │   └── FormBuilder/              # React application
 │       ├── public/
 │       └── src/
-│           ├── app/              # App bootstrap, Theme, Router
+│           ├── app/              # Theme, Router
 │           ├── Components/
 │           │   ├── form-fill/    # Form fill UI (create/edit/view)
 │           │   ├── Layout/       # Header, container layout
