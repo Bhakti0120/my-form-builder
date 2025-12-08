@@ -2,12 +2,20 @@ import {
   Box,
   Typography,
   Button,
-  List,
-  ListItem,
-  ListItemText,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { defaultConfig, useFormBuilder } from '../context/FormBuilderContext';
+import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DesignServicesRounded from '@mui/icons-material/DesignServicesRounded';
+import DeleteRounded from '@mui/icons-material/DeleteRounded';
+import React from 'react';
 
 export default function FormLibraryPage() {
   const navigate = useNavigate();
@@ -16,70 +24,147 @@ export default function FormLibraryPage() {
   const { updateForm } = useFormBuilder();
 
   return (
-    <Box p={3}>
+    <Box
+      p={3}
+      sx={{
+        width: '90%',
+        maxWidth: '80%',
+        mx: 'auto',
+        
+      }}
+    >
       <Button
         variant="outlined"
         onClick={() => {
           updateForm(defaultConfig);
           navigate('/');
         }}
+        sx={{ mb: 2 }}
       >
         Back
       </Button>
-      <Typography variant="h4" mb={2}>
+
+      <Typography variant="h4" mb={3}>
         Published Forms
       </Typography>
 
       {ids.length === 0 ? (
         <Typography>No forms published yet.</Typography>
       ) : (
-        <List disablePadding>
-          {ids.map((id) => {
-            const tpl = stored[id];
+        <Paper sx={{ width: '100%', overflowX: 'auto' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <b>Title</b>
+                </TableCell>
+                <TableCell>
+                  <b>Form ID</b>
+                </TableCell>
+                <TableCell align="right">
+                  <b>Actions</b>
+                </TableCell>
+              </TableRow>
+            </TableHead>
 
-            return (
-              <ListItem
-                key={id}
-                sx={{ borderBottom: '1px solid #ddd' }}
-                secondaryAction={
-                  <Box display="flex" gap={1}>
-                    {/* Fill Form */}
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => navigate(`/fill?formId=${id}&mode=create`)}
-                    >
-                      Fill
-                    </Button>
+            <TableBody>
+              {ids.map((id) => {
+                const tpl = stored[id];
 
-                    {/* Edit Layout */}
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => navigate(`/?edit=${id}`)}
-                    >
-                      Edit Layout
-                    </Button>
+                const [anchorEl, setAnchorEl] =React.useState<null | HTMLElement>(null);
+                const open = Boolean(anchorEl);
+                const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) =>setAnchorEl(e.currentTarget);
+                const handleMenuClose = () => setAnchorEl(null);
 
-                    {/* Responses */}
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => navigate(`/forms/${id}/responses`)}
-                    >
-                      Responses
-                    </Button>
-                  </Box>
-                }
-              >
-                <ListItemText
-                  primary={tpl.title}
-                  secondary={`Form ID: ${id}`}
-                />
-              </ListItem>
-            );
-          })}
-        </List>
+                return (
+                  <TableRow key={id}>
+                    <TableCell>{tpl.title}</TableCell>
+                    <TableCell>{id}</TableCell>
+
+                    <TableCell align="right">
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: 1,
+                          justifyContent: 'flex-end',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {/* EDIT ICON */}
+                        <Tooltip title="Edit Layout">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => navigate(`/?edit=${id}`)}
+                          >
+                            <DesignServicesRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* DELETE ICON */}
+                        <Tooltip title="Delete Form">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => {
+                              if (
+                                window.confirm(
+                                  `Delete form "${tpl.title}"? This cannot be undone.`
+                                )
+                              ) {
+                                const stored = JSON.parse(
+                                  localStorage.getItem('published-forms') ||
+                                    '{}'
+                                );
+                                delete stored[id];
+                                localStorage.setItem(
+                                  'published-forms',
+                                  JSON.stringify(stored)
+                                );
+                                window.location.reload();
+                              }
+                            }}
+                          >
+                            <DeleteRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* MORE OPTIONS (Dropdown) */}
+                        <IconButton size="small" onClick={handleMenuOpen}>
+                          <MoreVertIcon fontSize="small" />
+                        </IconButton>
+
+                        <Menu
+                          anchorEl={anchorEl}
+                          open={open}
+                          onClose={handleMenuClose}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              handleMenuClose();
+                              navigate(`/fill?formId=${id}&mode=create`);
+                            }}
+                          >
+                            Fill Form
+                          </MenuItem>
+
+                          <MenuItem
+                            onClick={() => {
+                              handleMenuClose();
+                              navigate(`/forms/${id}/responses`);
+                            }}
+                          >
+                            View Responses
+                          </MenuItem>
+                        </Menu>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </Paper>
       )}
     </Box>
   );

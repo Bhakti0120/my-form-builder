@@ -1,17 +1,18 @@
 // src/layout/Layout.tsx
+import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useFormBuilder, defaultConfig } from '../../context/FormBuilderContext';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { defaultConfig, useFormBuilder } from '../../context/FormBuilderContext';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  // const location = useLocation();
   const { updateForm } = useFormBuilder();
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static" sx={{ mb: 3 }}>
+      <AppBar position="static" sx={{ mb: { xs: 1, md: 3 } }}>
         <Toolbar>
-          {/* Logo */}
           <Typography
             variant="h6"
             sx={{
@@ -28,7 +29,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             FormCraft
           </Typography>
 
-          {/* Navigation Links */}
           <Button color="inherit" onClick={() => navigate('/')}>
             Builder
           </Button>
@@ -39,7 +39,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </Toolbar>
       </AppBar>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          p: { xs: 2, md: 4 },
+          width: { xs: '95%', md: '80%' },
+          mx: 'auto',
+        }}
+      >
         {children}
       </Box>
     </Box>

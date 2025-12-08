@@ -1,5 +1,4 @@
 // apps/FormBuilder/src/components/preview/FormPreview.tsx
-import React from 'react';
 import { Box, Typography, Button, Divider } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,11 +6,13 @@ import FieldRenderer from './FieldRenderer';
 import { useFormBuilder } from '../../context/FormBuilderContext';
 import { buildZodSchema } from '../../utils/schema-builder';
 import { sizeToPercent } from '../../utils/layout-utils';
+import { useNavigate } from 'react-router-dom';
 
 interface previewProps {
   showSave?: boolean;
 }
-export default function FormPreview({ showSave=true}: previewProps) {
+export default function FormPreview({ showSave = true }: previewProps) {
+  const navigate=useNavigate()
   const { formConfig } = useFormBuilder();
 
   const schema = buildZodSchema(formConfig);
@@ -105,8 +106,11 @@ export default function FormPreview({ showSave=true}: previewProps) {
             const stored = JSON.parse(
               localStorage.getItem('published-forms') || '{}'
             );
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const editingId = urlParams.get('edit');
 
-            const formId = formConfig.id || crypto.randomUUID(); // NEW: assign ID if missing
+            const formId = editingId|| formConfig.id || crypto.randomUUID(); // NEW: assign ID if missing
 
             const template = {
               id: formId,
@@ -120,6 +124,9 @@ export default function FormPreview({ showSave=true}: previewProps) {
 
             localStorage.setItem('published-forms', JSON.stringify(stored));
             alert(`Form "${template.title}" saved successfully!`);
+            if (editingId) {
+              navigate('/forms');
+            }
           }}
         >
           Save Form

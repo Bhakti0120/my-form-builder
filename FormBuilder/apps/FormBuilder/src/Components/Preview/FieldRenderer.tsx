@@ -1,5 +1,4 @@
 // apps/FormBuilder/src/components/preview/FieldRenderer.tsx
-import React from 'react';
 import {
   TextField,
   MenuItem,

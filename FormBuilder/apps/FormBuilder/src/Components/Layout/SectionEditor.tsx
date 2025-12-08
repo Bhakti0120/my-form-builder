@@ -62,14 +62,14 @@ export default function SectionEditor({ section }: Props) {
       sections.map((s) =>
         s.id === section.id ? { ...s, expanded: isExpanded } : s
       )
-    );
+    );  
   };
 
   return (
     <Accordion
       expanded={section.expanded}
       onChange={handleAccordionToggle}
-      sx={{ mb: 2, position: 'relative' }}
+      sx={{ mb: 3, position: 'relative' }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box
