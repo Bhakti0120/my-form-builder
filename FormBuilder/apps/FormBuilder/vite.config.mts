@@ -6,8 +6,13 @@ export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/apps/FormBuilder',
   server: {
-    port: 4200,
-    host: 'localhost',
+    // port: 4200,
+    // host: 'localhost',
+    hmr: {
+      host: 'localhost',
+      protocol: 'ws',
+      port: 4200, // or your actual running port
+    },
   },
   preview: {
     port: 4300,

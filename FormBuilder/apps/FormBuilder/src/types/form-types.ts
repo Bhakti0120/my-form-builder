@@ -6,6 +6,7 @@ export interface FieldConfig {
   type: string;
   size: FieldSize;
   required: boolean;
+  options?: string[]; // For select fields
 }
 
 export interface FormSection {
@@ -16,7 +17,7 @@ export interface FormSection {
 }
 
 export interface FormConfig {
+  id?: string;
   formLabel: string;
-  viewType: "create" | "edit" | "view";
   sections: FormSection[];
 }

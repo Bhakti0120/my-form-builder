@@ -6,9 +6,10 @@ interface FormBuilderCtx {
   updateForm: (data: Partial<FormConfig>) => void;
 }
 
-const defaultConfig: FormConfig = {
-  formLabel: "",
-  viewType: "create",
+export const defaultConfig: FormConfig = {
+  id: undefined as unknown as string |undefined,
+  formLabel: '',
+  // viewType: 'create',
   sections: [],
 };
 
@@ -26,7 +27,7 @@ export const FormBuilderProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <FormBuilderContext.Provider value={{ formConfig, updateForm }}>
-      {children}
+      {children}  
     </FormBuilderContext.Provider>
   );
 };
