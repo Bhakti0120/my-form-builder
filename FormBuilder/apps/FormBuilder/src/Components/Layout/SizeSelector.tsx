@@ -1,5 +1,5 @@
-import { TextField, MenuItem } from "@mui/material";
-import { FieldSize } from "../../types/form-types";
+import { TextField, MenuItem } from '@mui/material';
+import { FieldSize } from '../../types/form-types';
 
 export default function SizeSelector({
   size,
@@ -16,10 +16,10 @@ export default function SizeSelector({
       onChange={(e) => onChange(e.target.value as FieldSize)}
       sx={{ width: 100 }}
     >
-      <MenuItem value="sm">33%</MenuItem>
-      <MenuItem value="md">50%</MenuItem>
-      <MenuItem value="lg">66%</MenuItem>
-      <MenuItem value="xl">100%</MenuItem>
+      <MenuItem value="sm">Small</MenuItem>
+      <MenuItem value="md">Medium</MenuItem>
+      <MenuItem value="lg">Large</MenuItem>
+      <MenuItem value="xl">Extra-large</MenuItem>
     </TextField>
   );
-} 
+}

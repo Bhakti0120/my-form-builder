@@ -3,8 +3,6 @@ import FieldRenderer from '../Preview/FieldRenderer';
 import { sizeToPercent } from '../../utils/layout-utils';
 import { FormConfig } from '../../types/form-types';
 import { UseFormReturn } from 'react-hook-form';
-
-
 interface FormFillViewProps {
   config: FormConfig;
   form: UseFormReturn<any>;
@@ -20,6 +18,7 @@ export default function FormFillView({ config, form, mode, onSubmit }:FormFillVi
   } = form;
 
   const disabled = mode === 'view';
+
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>

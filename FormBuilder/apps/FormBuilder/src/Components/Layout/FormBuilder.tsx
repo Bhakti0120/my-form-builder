@@ -21,7 +21,34 @@ export default function FormBuilder() {
           id: crypto.randomUUID(),
           label: `Section ${formConfig.sections.length + 1}`,
           expanded: true,
-          rows: [[]],
+          rows: [
+            [
+              {
+                id: crypto.randomUUID(),
+                label: 'Field 1',
+                type: 'text',
+                size: 'sm',
+                required: false,
+                options: [],
+              },
+              {
+                id: crypto.randomUUID(),
+                label: 'Field 2',
+                type: 'text',
+                size: 'sm',
+                required: false,
+                options: [],
+              },
+              {
+                id: crypto.randomUUID(),
+                label: 'Field 3',
+                type: 'text',
+                size: 'sm',
+                required: false,
+                options: [],
+              },
+            ],
+          ],
         },
       ],
     });
@@ -33,55 +60,36 @@ export default function FormBuilder() {
     updateForm({ formLabel: e.target.value });
   };
 
-  // const handleViewTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   updateForm({ viewType: e.target.value as 'create' | 'edit' | 'view' });
-  // };
+  
   return (
     <Box p={3}>
       {/* Form-level settings */}
-      <Box mb={3}>
-        <Typography variant="h4" gutterBottom>
-          Dynamic Form Builder
-        </Typography>
 
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-          <TextField
-            label="Form Title"
-            value={formConfig.formLabel}
-            onChange={handleFormLabelChange}
-            fullWidth
-            size="small"
-          />
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        alignItems="center"
+        mb={2}
+        gap={2}
+      >
+        <Button variant="contained" onClick={addSection}>
+          Add Section
+        </Button>
 
-          {/* <TextField
-            label="View Type"
-            select
-            value={formConfig.viewType}
-            onChange={handleViewTypeChange}
-            size="small"
-            sx={{ minWidth: 160 }}
-          >
-            <MenuItem value="create">Create</MenuItem>
-            <MenuItem value="edit">Edit</MenuItem>
-            <MenuItem value="view">View</MenuItem>
-          </TextField> */}
-        </Stack>
+        <Button variant="contained" color="error" onClick={resetForm}>
+          Reset
+        </Button>
       </Box>
+      {formConfig.sections.length === 0 && (
+        <Typography sx={{ mt: 2, mb: 3 }} color="text.secondary">
+          Your form is empty. Click "Add Section" to get started.
+        </Typography>
+      )}
 
       {/* Sections */}
       {formConfig.sections.map((sec) => (
         <SectionEditor key={sec.id} section={sec} />
       ))}
-
-      <Box mt={2} display="flex" gap={2}>
-        <Button variant="contained" onClick={addSection}>
-          Add Section
-        </Button>
-        
-        <Button variant="contained" color="error" onClick={resetForm}>
-          Reset
-        </Button>
-      </Box>
     </Box>
   );
 }

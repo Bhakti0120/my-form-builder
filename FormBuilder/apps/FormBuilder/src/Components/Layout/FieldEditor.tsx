@@ -32,7 +32,7 @@ interface Props {
 }
 
 export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
-const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const { formConfig, updateForm } = useFormBuilder();
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,11 @@ const [open, setOpen] = useState<boolean>(false);
   };
 
   const handleTypeChange = (fieldId: string, value: string) => {
-    updateField(fieldId, (f) => ({ ...f, type: value, options: value === 'select' ? f.options ?? []: undefined })); ;
+    updateField(fieldId, (f) => ({
+      ...f,
+      type: value,
+      options: value === 'select' ? f.options ?? [] : undefined,
+    }));
   };
 
   const handleRequiredChange = (fieldId: string, value: 'yes' | 'no') => {
@@ -83,7 +87,7 @@ const [open, setOpen] = useState<boolean>(false);
     if (!rowArr) return;
 
     const fieldIndex = rowArr.findIndex((f) => f.id === fieldId);
-    if (fieldIndex === -1) return;  
+    if (fieldIndex === -1) return;
 
     const originalSize = rowArr[fieldIndex].size;
     rowArr[fieldIndex].size = newSize;
@@ -120,7 +124,6 @@ const [open, setOpen] = useState<boolean>(false);
     setError(null);
   };
 
-
   const addOption = (fieldId: string) => {
     updateField(fieldId, (f) => ({
       ...f,
@@ -148,8 +151,6 @@ const [open, setOpen] = useState<boolean>(false);
     });
   };
 
-
-
   const deleteField = (id: string) => {
     const sectionsCopy = cloneSections();
     const sectionIndex = sectionsCopy.findIndex((s) => s.id === sectionId);
@@ -171,7 +172,6 @@ const [open, setOpen] = useState<boolean>(false);
     updateForm({ sections: sectionsCopy });
     setError(null);
   };
-
 
   const addField = () => {
     const sectionsCopy = cloneSections();
@@ -210,33 +210,53 @@ const [open, setOpen] = useState<boolean>(false);
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={1}
+        mb={2}
+        sx={{ px: 1 }}
       >
-        <Typography variant="subtitle2" fontWeight={600}>
+        <Typography variant="subtitle1" fontWeight={600}>
           Row {rowIndex + 1}
         </Typography>
 
-        <Button size="small" color="error" onClick={deleteRow}>
-          Delete Row
-        </Button>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddIcon />}
+            onClick={addField}
+          >
+            Add Field
+          </Button>
+
+          <Button
+            size="small"
+            color="error"
+            onClick={deleteRow}
+            sx={{ fontSize: 13 }}
+          >
+            Delete Row
+          </Button>
+        </Box>
       </Box>
 
-      {/* Row container: flex so our percentages work correctly */}
+      {/* Fields Wrapper */}
       <Box display="flex" flexWrap="wrap" mx={-1}>
         {row.map((field, i) => (
           <Box
             key={field.id}
             sx={{
               flex: `0 0 ${sizeToPercent(field.size)}%`,
-              px: 1, // spacing inside, does not break width math
-              minWidth: 220,
+              px: 1,
+              minWidth: 250,
               boxSizing: 'border-box',
+              mb: 2,
             }}
           >
-            <Card variant="outlined">
-              <CardContent>
-                <Stack spacing={2}>
-                  <Typography variant="subtitle2">Field {i + 1}</Typography>
+            <Card variant="outlined" sx={{ p: 1 }}>
+              <CardContent sx={{ pb: 1 }}>
+                <Stack spacing={1.5}>
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Field {i + 1}
+                  </Typography>
 
                   <TextField
                     label="Label"
@@ -263,7 +283,8 @@ const [open, setOpen] = useState<boolean>(false);
                     ))}
                   </TextField>
 
-                  <Box display="flex" gap={1} alignItems="center">
+                  {/* Size + Required Row */}
+                  <Box display="flex" gap={1}>
                     <SizeSelector
                       size={field.size}
                       onChange={(v) => handleSizeChange(field.id, v)}
@@ -280,43 +301,29 @@ const [open, setOpen] = useState<boolean>(false);
                           e.target.value as 'yes' | 'no'
                         )
                       }
-                      sx={{ width: 110 }}
+                      sx={{ width: 120 }}
                     >
                       <MenuItem value="yes">Yes</MenuItem>
                       <MenuItem value="no">No</MenuItem>
                     </TextField>
                   </Box>
 
+                  {/* Select Options */}
                   {field.type === 'select' && (
                     <Box>
-                      {/* Header */}
-                      <Box
-                        onClick={() => setOpen(!open)}
+                      <Typography
+                        variant="caption"
+                        fontWeight={600}
                         sx={{
                           cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          height: '16px',
-                          p: 0,
-                          m: 0,
-                          fontSize: '11px',
-                          fontWeight: 600,
                           opacity: 0.7,
-                          lineHeight: 1, 
                         }}
+                        onClick={() => setOpen(!open)}
                       >
                         Options ({field.options?.length || 0})
-                      </Box>
+                      </Typography>
 
-                      {/* Content */}
-                      <Collapse
-                        in={open}
-                        unmountOnExit 
-                        sx={{
-                          mt: 1,
-                          p: 0,
-                        }}
-                      >
+                      <Collapse in={open} unmountOnExit sx={{ mt: 1 }}>
                         {field.options?.map((opt, idx) => (
                           <Box key={idx} display="flex" gap={1} mb={1}>
                             <TextField
@@ -334,7 +341,7 @@ const [open, setOpen] = useState<boolean>(false);
                             <Button
                               size="small"
                               color="error"
-                              sx={{ minWidth: 28, p: '0 4px', lineHeight: 1 }}
+                              sx={{ minWidth: 28 }}
                               onClick={() => deleteOption(field.id, idx)}
                             >
                               x
@@ -345,11 +352,9 @@ const [open, setOpen] = useState<boolean>(false);
                         <Button
                           size="small"
                           sx={{
-                            fontSize: 11,
+                            fontSize: 12,
                             textTransform: 'none',
-                            p: 0,
-                            mt: 0.5,
-                            lineHeight: 1,
+                            pl: 0,
                           }}
                           onClick={() => addOption(field.id)}
                         >
@@ -361,11 +366,12 @@ const [open, setOpen] = useState<boolean>(false);
                 </Stack>
               </CardContent>
 
-              <CardActions sx={{ justifyContent: 'space-between' }}>
+              <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
                 <Button
                   size="small"
                   onClick={() => deleteField(field.id)}
                   startIcon={<DeleteIcon />}
+                  sx={{ fontSize: 13 }}
                 >
                   Delete
                 </Button>
@@ -380,13 +386,7 @@ const [open, setOpen] = useState<boolean>(false);
           {error}
         </Alert>
       )}
-
-      {/* Add field button below the row */}
-      <Box display="flex" justifyContent="flex-end" mt={1}>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={addField}>
-          Add Field
-        </Button>
-      </Box>
     </Box>
   );
+
 }

@@ -3,6 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import { loadTemplates, loadResponses, saveResponse } from '../utils/storage';
 import { useForm } from 'react-hook-form';
 import FormFillView from '../Components/form-fill/FormFillView';
+import { buildZodSchema } from '../utils/schema-builder';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 
 export default function FormFillPage() {
   const [params] = useSearchParams();
@@ -13,6 +16,8 @@ export default function FormFillPage() {
 
   const templates = loadTemplates();
   const template = templates[formId];
+
+  const schema=buildZodSchema(template.config)
 
   if (!template) {
     return <Typography>Form not found.</Typography>;
@@ -26,6 +31,8 @@ export default function FormFillPage() {
   // ⭐ THIS IS THE IMPORTANT PART:
   const form = useForm({
     defaultValues: existingResponse?.data || {},
+    resolver: zodResolver(schema),
+    mode : "onChange"
   });
 
   const handleSave = (data: any) => {
@@ -36,7 +43,7 @@ export default function FormFillPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    saveResponse(formId, newResponse);
+    saveResponse(formId, newResponse, template.config);
 
     alert(mode === 'edit' ? 'Response updated!' : 'Form submitted!');
   };
