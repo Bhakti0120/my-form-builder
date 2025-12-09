@@ -10,15 +10,19 @@ interface FormFillViewProps {
   onSubmit: (data: any) => void;
 }
 
-export default function FormFillView({ config, form, mode, onSubmit }:FormFillViewProps) {
+export default function FormFillView({
+  config,
+  form,
+  mode,
+  onSubmit,
+}: FormFillViewProps) {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = form;
 
-  const disabled = mode === 'view';
-
+  // const disabled = mode === 'view';
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)}>
@@ -46,7 +50,9 @@ export default function FormFillView({ config, form, mode, onSubmit }:FormFillVi
                       field={field}
                       viewType={mode}
                       register={register}
-                      error={errors[field.id]?.message as string | undefined}/>
+                      error={errors[field.id]?.message as string | undefined}
+                      value={form.getValues(field.id)}
+                    />
                   </Box>
                 ))}
               </Box>
