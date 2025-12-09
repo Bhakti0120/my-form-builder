@@ -117,6 +117,7 @@ export default function FormPreview({ showSave = true }: previewProps) {
                       // viewType={formConfig.viewType}
                       register={register}
                       error={errors[field.id]?.message as string | undefined}
+                        
                     />
                   </Box>
                 ))}
