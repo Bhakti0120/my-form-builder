@@ -8,20 +8,73 @@ import {
   TableCell,
   TableBody,
   Paper,
+  IconButton,
+  Tooltip,
+  Menu,
+  MenuItem,
 } from '@mui/material';
+
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { defaultConfig, useFormBuilder } from '../context/FormBuilderContext';
-import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DesignServicesRounded from '@mui/icons-material/DesignServicesRounded';
 import DeleteRounded from '@mui/icons-material/DeleteRounded';
-import React from 'react';
+
+import { defaultConfig, useFormBuilder } from '../context/FormBuilderContext';
+import { loadResponses, loadTemplates } from '../utils/storage';
 
 export default function FormLibraryPage() {
   const navigate = useNavigate();
-  const stored = JSON.parse(localStorage.getItem('published-forms') || '{}');
-  const ids = Object.keys(stored);
   const { updateForm } = useFormBuilder();
+
+  // Load from localStorage only once
+  const [templates, setTemplates] = React.useState(loadTemplates());
+
+  // For dropdown menu actions
+  const [menuAnchor, setMenuAnchor] = React.useState<null | HTMLElement>(null);
+  const [selectedFormId, setSelectedFormId] = React.useState<string | null>(
+    null
+  );
+
+  const openMenu = Boolean(menuAnchor);
+
+  const handleMenuOpen = (
+    event: React.MouseEvent<HTMLElement>,
+    formId: string
+  ) => {
+    setSelectedFormId(formId);
+    setMenuAnchor(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setSelectedFormId(null);
+  };
+
+  // 2. Delete form + responses properly
+  const handleDeleteForm = (formId: string, title: string) => {
+    const confirmDelete = window.confirm(
+      `Delete form "${title}"?\n\nThis will also DELETE all saved responses.\nThis action cannot be undone.`
+    );
+    if (!confirmDelete) return;
+
+    // Delete templates
+    const updatedTemplates = { ...templates };
+    delete updatedTemplates[formId];
+    localStorage.setItem('published-forms', JSON.stringify(updatedTemplates));
+
+    // Delete responses
+    const allResponses = loadResponses();
+    delete allResponses[formId];
+    localStorage.setItem('form-responses', JSON.stringify(allResponses));
+
+    // Update UI without reload
+    setTemplates(updatedTemplates);
+
+    alert(`Form "${title}" and all responses deleted.`);
+  };
+
+  const ids = Object.keys(templates);
 
   return (
     <Box
@@ -30,7 +83,6 @@ export default function FormLibraryPage() {
         width: '90%',
         maxWidth: '80%',
         mx: 'auto',
-        
       }}
     >
       <Button
@@ -69,12 +121,7 @@ export default function FormLibraryPage() {
 
             <TableBody>
               {ids.map((id) => {
-                const tpl = stored[id];
-
-                const [anchorEl, setAnchorEl] =React.useState<null | HTMLElement>(null);
-                const open = Boolean(anchorEl);
-                const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) =>setAnchorEl(e.currentTarget);
-                const handleMenuClose = () => setAnchorEl(null);
+                const tpl = templates[id];
 
                 return (
                   <TableRow key={id}>
@@ -106,57 +153,19 @@ export default function FormLibraryPage() {
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => {
-                              if (
-                                window.confirm(
-                                  `Delete form "${tpl.title}"? This cannot be undone.`
-                                )
-                              ) {
-                                const stored = JSON.parse(
-                                  localStorage.getItem('published-forms') ||
-                                    '{}'
-                                );
-                                delete stored[id];
-                                localStorage.setItem(
-                                  'published-forms',
-                                  JSON.stringify(stored)
-                                );
-                                window.location.reload();
-                              }
-                            }}
+                            onClick={() => handleDeleteForm(id, tpl.title)}
                           >
                             <DeleteRounded fontSize="small" />
                           </IconButton>
                         </Tooltip>
 
-                        {/* MORE OPTIONS (Dropdown) */}
-                        <IconButton size="small" onClick={handleMenuOpen}>
+                        {/* MENU BUTTON */}
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, id)}
+                        >
                           <MoreVertIcon fontSize="small" />
                         </IconButton>
-
-                        <Menu
-                          anchorEl={anchorEl}
-                          open={open}
-                          onClose={handleMenuClose}
-                        >
-                          <MenuItem
-                            onClick={() => {
-                              handleMenuClose();
-                              navigate(`/fill?formId=${id}&mode=create`);
-                            }}
-                          >
-                            Fill Form
-                          </MenuItem>
-
-                          <MenuItem
-                            onClick={() => {
-                              handleMenuClose();
-                              navigate(`/forms/${id}/responses`);
-                            }}
-                          >
-                            View Responses
-                          </MenuItem>
-                        </Menu>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -166,6 +175,27 @@ export default function FormLibraryPage() {
           </Table>
         </Paper>
       )}
+
+      {/*  Dropdown menu */}
+      <Menu anchorEl={menuAnchor} open={openMenu} onClose={handleMenuClose}>
+        <MenuItem
+          onClick={() => {
+            navigate(`/fill?formId=${selectedFormId}&mode=create`);
+            handleMenuClose();
+          }}
+        >
+          Fill Form
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            navigate(`/forms/${selectedFormId}/responses`);
+            handleMenuClose();
+          }}
+        >
+          View Responses
+        </MenuItem>
+      </Menu>
     </Box>
   );
 }
