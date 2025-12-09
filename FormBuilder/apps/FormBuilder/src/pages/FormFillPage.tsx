@@ -1,13 +1,13 @@
 import { Box, Typography } from '@mui/material';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { loadTemplates, loadResponses, saveResponse } from '../utils/storage';
 import { useForm } from 'react-hook-form';
 import FormFillView from '../Components/form-fill/FormFillView';
 import { buildZodSchema } from '../utils/schema-builder';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-
 export default function FormFillPage() {
+  const navigate = useNavigate();
   const [params] = useSearchParams();
 
   const formId = params.get('formId')!;
@@ -17,7 +17,7 @@ export default function FormFillPage() {
   const templates = loadTemplates();
   const template = templates[formId];
 
-  const schema=buildZodSchema(template.config)
+  const schema = buildZodSchema(template.config);
 
   if (!template) {
     return <Typography>Form not found.</Typography>;
@@ -32,7 +32,7 @@ export default function FormFillPage() {
   const form = useForm({
     defaultValues: existingResponse?.data || {},
     resolver: zodResolver(schema),
-    mode : "onChange"
+    mode: 'onChange',
   });
 
   const handleSave = (data: any) => {
@@ -46,6 +46,8 @@ export default function FormFillPage() {
     saveResponse(formId, newResponse, template.config);
 
     alert(mode === 'edit' ? 'Response updated!' : 'Form submitted!');
+
+    navigate('/forms');
   };
 
   return (

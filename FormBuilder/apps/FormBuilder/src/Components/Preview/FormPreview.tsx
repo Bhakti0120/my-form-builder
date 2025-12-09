@@ -7,6 +7,7 @@ import { useFormBuilder } from '../../context/FormBuilderContext';
 import { buildZodSchema } from '../../utils/schema-builder';
 import { sizeToPercent } from '../../utils/layout-utils';
 import { useNavigate } from 'react-router-dom';
+import { FormConfig } from '../../types/form-types';
 
 interface previewProps {
   showSave?: boolean;
@@ -38,6 +39,34 @@ export default function FormPreview({ showSave = true }: previewProps) {
       </Typography>
     );
   }
+
+  const validateFormBeforeSave = (formConfig: FormConfig): string | null => {
+    if (!formConfig.formLabel || !formConfig.formLabel.trim()) {
+      return 'Form title is required.';
+    }
+
+    for (const section of formConfig.sections) {
+      for (const row of section.rows) {
+        for (const field of row) {
+          const label = field.label?.trim();
+          if (!label) return `A field is missing a label.`;
+
+          if (field.type === 'select') {
+            if (!field.options?.length) {
+              return `Select field "${label}" must have at least one option.`;
+            }
+            if (field.options.some((opt) => !opt.trim())) {
+              return `All options in "${label}" must be non-empty.`;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  };
+
+
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate p={2}>
@@ -102,31 +131,59 @@ export default function FormPreview({ showSave = true }: previewProps) {
         <Button
           variant="contained"
           sx={{ mr: 2 }}
+          // inside FormPreview.tsx — replace the current onClick
           onClick={() => {
+            // run the same validator but with extra logging
+            const error = validateFormBeforeSave(formConfig);
+            if (error) {
+              // show a user alert and a helpful dev log with a readable snapshot
+              alert(error);
+              console.warn('Form save blocked:', error, {
+                title: formConfig.formLabel,
+                sections: formConfig.sections.map((s: any, si: number) => ({
+                  index: si,
+                  label: s.label,
+                  rows: s.rows.map((r: any, ri: number) =>
+                    r.map((f: any, fi: number) => ({
+                      section: si,
+                      row: ri,
+                      field: fi,
+                      id: f.id,
+                      labelRaw: f.label,
+                      labelTrim: String(f.label ?? '').trim(),
+                      type: f.type,
+                      optionsCount: Array.isArray(f.options)
+                        ? f.options.length
+                        : 0,
+                    }))
+                  ),
+                })),
+                full: formConfig,
+              });
+              return;
+            }
+
+            // proceed to save
             const stored = JSON.parse(
               localStorage.getItem('published-forms') || '{}'
             );
-            
             const urlParams = new URLSearchParams(window.location.search);
             const editingId = urlParams.get('edit');
-
-            const formId = editingId|| formConfig.id || crypto.randomUUID(); // NEW: assign ID if missing
+            const formId = editingId || formConfig.id || crypto.randomUUID();
 
             const template = {
               id: formId,
-              title: formConfig.formLabel.trim() || 'Untitled Form',
+              title: formConfig.formLabel.trim(),
               config: formConfig,
               createdAt: stored[formId]?.createdAt || new Date().toISOString(),
               updatedAt: new Date().toISOString(),
             };
 
             stored[formId] = template;
-
             localStorage.setItem('published-forms', JSON.stringify(stored));
+
             alert(`Form "${template.title}" saved successfully!`);
-            if (editingId) {
-              navigate('/forms');
-            }
+            if (editingId) navigate('/forms');
           }}
         >
           Save Form

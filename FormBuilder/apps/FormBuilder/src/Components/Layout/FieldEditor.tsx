@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   TextField,
@@ -10,10 +10,8 @@ import {
   Typography,
   Stack,
   Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   Collapse,
+  Autocomplete,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -268,20 +266,20 @@ export default function FieldEditor({ row, sectionId, rowIndex }: Props) {
                     size="small"
                   />
 
-                  <TextField
-                    label="Type"
-                    select
-                    value={field.type}
-                    onChange={(e) => handleTypeChange(field.id, e.target.value)}
+                  <Autocomplete
                     fullWidth
                     size="small"
-                  >
-                    {fieldTypes.map((t) => (
-                      <MenuItem key={t} value={t}>
-                        {t}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+                    options={fieldTypes}
+                    value={field.type || null}
+                    onChange={(e, val) => handleTypeChange(field.id, val || '')}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Type"
+                        placeholder="Search field type..."
+                      />
+                    )}
+                  />
 
                   {/* Size + Required Row */}
                   <Box display="flex" gap={1}>
